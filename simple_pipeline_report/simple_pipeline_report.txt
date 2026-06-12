@@ -1,0 +1,4 @@
+=== RELATÓRIO DE CONTAGEM ===
+Arquivo analisado: simple_pipeline_data.txt
+Quantidade total de linhas: 4
+Análise concluída com sucesso em: $(date)

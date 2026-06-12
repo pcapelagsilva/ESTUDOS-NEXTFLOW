@@ -1,0 +1,4 @@
+Gene_A: Ativo
+Gene_B: Inativo
+Gene_C: Mutado
+Gene_D: Ativo
