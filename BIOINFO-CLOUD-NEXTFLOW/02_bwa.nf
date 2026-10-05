@@ -14,6 +14,23 @@ process BWA_INDEX {
     """
 }
 
+process BWA_MEM {
+    
+    container 'staphb/bwa:0.7.17'
+
+    input:
+    tuple val(sample), path(reads), path(reference), path(index_files)
+
+    output:
+    path "${sample}.sam"
+
+    script:
+    """
+    bwa mem ${reference} ${reads[0]} ${reads[1]} > ${sample}.sam
+    """
+
+}
+
 workflow {
     reference = channel.fromPath('data/reference/SARS-CoV-2_reference.fasta')
 
@@ -27,7 +44,18 @@ workflow {
 
     reads.view()
 
-    bwa_input = reads.combine(index_reference)
+    bwa_input = reads
+        .combine(index_reference)
+        .map { sample_id, read_files, ref_fasta, amb_file, ann_file, bwt_file, pac_file, sa_file ->
+            tuple(
+                sample_id,
+                read_files,
+                ref_fasta,
+                [amb_file, ann_file, bwt_file, pac_file, sa_file]
+        )
+    }
 
     bwa_input.view()
+
+    BWA_MEM(bwa_input)
 }
