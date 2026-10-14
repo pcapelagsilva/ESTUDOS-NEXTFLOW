@@ -31,6 +31,54 @@ process BWA_MEM {
 
 }
 
+process SAMTOOLS_VIEW {
+
+    container 'staphb/samtools:1.20'
+
+    input:
+    path sam
+
+    output:
+    path "*.bam"
+
+    script:
+    """
+    samtools view -b ${sam} > ${sam.simpleName}.bam
+    """
+}
+
+process SAMTOOLS_SORT{
+
+    container 'staphb/samtools:1.20'
+
+    input:
+    path bam
+
+    output:
+    path "*.sorted.bam"
+
+    script:
+    """
+    samtools sort ${bam} -o ${bam.simpleName}.sorted.bam
+    """
+}
+
+process SAMTOOLS_INDEX {
+
+    container 'staphb/samtools:1.20'
+
+    input:
+    path bam
+
+    output:
+    path "*.bai"
+
+    script:
+    """
+    samtools index ${bam}
+    """
+}
+
 workflow {
     reference = channel.fromPath('data/reference/SARS-CoV-2_reference.fasta')
 
@@ -57,5 +105,11 @@ workflow {
 
     bwa_input.view()
 
-    BWA_MEM(bwa_input)
+    sam_output = BWA_MEM(bwa_input)
+
+    bam_output = SAMTOOLS_VIEW(sam_output)
+
+    sorted_bam = SAMTOOLS_SORT(bam_output)
+
+    SAMTOOLS_INDEX  
 }
